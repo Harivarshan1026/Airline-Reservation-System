@@ -1,0 +1,103 @@
+import javax.swing.*;
+import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
+
+public class AirlineReservationSystem extends JFrame {
+    private Map<Integer, Booking> bookings = new HashMap<>();
+    private int bookingIdCounter = 1;
+
+    public AirlineReservationSystem() {
+        setTitle("Airline Reservation System");
+        setSize(400, 300);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLayout(new FlowLayout());
+
+        JButton bookSeatButton = new JButton("Book a Seat");
+        JButton displaySeatsButton = new JButton("Display Available Seats");
+        JButton cancelReservationButton = new JButton("Cancel Reservation");
+        JButton exitButton = new JButton("Exit");
+
+        bookSeatButton.addActionListener(e -> bookSeat());
+        displaySeatsButton.addActionListener(e -> displayAvailableSeats());
+        cancelReservationButton.addActionListener(e -> cancelReservation());
+        exitButton.addActionListener(e -> System.exit(0));
+
+        add(bookSeatButton);
+        add(displaySeatsButton);
+        add(cancelReservationButton);
+        add(exitButton);
+    }
+
+    private void bookSeat() {
+        String seatInput = JOptionPane.showInputDialog("Enter seat number (1-10):");
+        int seatNumber = Integer.parseInt(seatInput);
+        String name = JOptionPane.showInputDialog("Enter passenger name:");
+        String phone = JOptionPane.showInputDialog("Enter phone number:");
+
+        if (seatNumber < 1 || seatNumber > 10 || bookings.containsKey(seatNumber)) {
+            JOptionPane.showMessageDialog(this, "Invalid seat number or seat already booked.");
+            return;
+        }
+
+        bookings.put(seatNumber, new Booking(bookingIdCounter++, name, phone));
+        JOptionPane.showMessageDialog(this, "Seat booked successfully! Booking ID: " + (bookingIdCounter - 1));
+    }
+
+    private void displayAvailableSeats() {
+        StringBuilder availableSeats = new StringBuilder("Available Seats:\n");
+        for (int i = 1; i <= 10; i++) {
+            if (!bookings.containsKey(i)) {
+                availableSeats.append(i).append(" ");
+            }
+        }
+        JOptionPane.showMessageDialog(this, availableSeats.toString());
+    }
+
+    private void cancelReservation() {
+        String bookingIdInput = JOptionPane.showInputDialog("Enter booking ID to cancel:");
+        int bookingId = Integer.parseInt(bookingIdInput);
+        Booking bookingToCancel = null;
+
+        for (Map.Entry<Integer, Booking> entry : bookings.entrySet()) {
+            if (entry.getValue().getBookingId() == bookingId) {
+                bookingToCancel = entry.getValue();
+                bookings.remove(entry.getKey());
+                break;
+            }
+        }
+
+        if (bookingToCancel != null) {
+            JOptionPane.showMessageDialog(this, "Reservation cancelled. Passenger Name: " + bookingToCancel.getName());
+        } else {
+            JOptionPane.showMessageDialog(this, "Booking ID not found.");
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            AirlineReservationSystem system = new AirlineReservationSystem();
+            system.setVisible(true);
+        });
+    }
+
+    class Booking {
+        private int bookingId;
+        private String name;
+        private String phone;
+
+        public Booking(int bookingId, String name, String phone) {
+            this.bookingId = bookingId;
+            this.name = name;
+            this.phone = phone;
+        }
+
+        public int getBookingId() {
+            return bookingId;
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
+}
